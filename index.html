@@ -19,23 +19,21 @@
     </header>
 
     <div class="row mt-2">
-        <div class="col text-center">
+        <div id="divButtons" class="col text-center">
             
-            <button class="btn btn-danger">Nuevo juego</button>
-            <button class="btn btn-primary">Pedir carta</button>
-            <button class="btn btn-primary">Detener</button>
+            <!-- testear si se puede cambiar el attributo disabled en navegador, e intentar dar click -->
+            <button id="btnNuevo" class="btn btn-danger">Nuevo juego</button>
+            <button id="btnPedir" class="btn btn-primary">Pedir carta</button>
+            <button id="btnDetener" class="btn btn-primary">Detener</button>
 
         </div>
     </div>
 
     <div class="row container">
         <div class="col">
-            <h1>Jugador 1 - <small>0</small></h1>
+            <h1>Jugador 1 - <small id="player1">0</small></h1>
 
             <div id="jugador-cartas">
-                <img class="carta" src="assets/cartas/10C.png" alt="carta">
-                <img class="carta" src="assets/cartas/10C.png" alt="carta">
-                <img class="carta" src="assets/cartas/10C.png" alt="carta">
             </div>
 
         </div>
@@ -46,9 +44,9 @@
             <h1>Computadora - <small>0</small></h1>
 
             <div id="computadora-cartas">
+                <!-- <img class="carta" src="assets/cartas/3C.png" alt="carta">
                 <img class="carta" src="assets/cartas/3C.png" alt="carta">
-                <img class="carta" src="assets/cartas/3C.png" alt="carta">
-                <img class="carta" src="assets/cartas/3C.png" alt="carta">
+                <img class="carta" src="assets/cartas/3C.png" alt="carta"> -->
             </div>
 
         </div>
