@@ -5,156 +5,162 @@
  * 2S = Two of Spades
 */
 
-// TO DO: convert all this to OOP??
-let deck       = [];
-const types    = ['C', 'D', 'H', 'S'];
-const specials = ['A', 'J', 'Q', 'K'];
+// Pattern module
+(() => {
+    'use strict';
 
-let playerPoints = 0;
-let computerPoints = 0;
+    let deck       = [];
+    const types    = ['C', 'D', 'H', 'S'];
+    const specials = ['A', 'J', 'Q', 'K'];
 
-// HTML references
-const btnPedir    = document.querySelector('#btnPedir');
-const btnStop     = document.querySelector('#btnDetener');
-const btnNewGame  = document.querySelector('#btnNuevo');
+    let playerPoints = 0;
+    let computerPoints = 0;
 
-const divPlayerCards = document.querySelector('#jugador-cartas');
-const divComputerCards = document.querySelector('#computadora-cartas');
+    // HTML references
+    const btnPedir    = document.querySelector('#btnPedir');
+    const btnStop     = document.querySelector('#btnDetener');
+    const btnNewGame  = document.querySelector('#btnNuevo');
 
-const pointsHTML = document.querySelectorAll('small');
+    const divPlayerCards = document.querySelector('#jugador-cartas');
+    const divComputerCards = document.querySelector('#computadora-cartas');
 
-const createDeck = () => {
+    const pointsHTML = document.querySelectorAll('small');
 
-    for (let i = 2; i <= 10; i++) {
+    const createDeck = () => {
+
+        for (let i = 2; i <= 10; i++) {
+            for (const type of types) {
+                deck.push(`${i}${type}`);
+            }
+        }
+        
         for (const type of types) {
-            deck.push(`${i}${type}`);
+            for (const spe of specials) {
+                deck.push(`${spe}${type}`);
+            }
         }
+
+        deck = _.shuffle( deck );
+
+        return deck;
     }
-    
-    for (const type of types) {
-        for (const spe of specials) {
-            deck.push(`${spe}${type}`);
+
+    createDeck();
+
+    /**
+     * Allow us to take a card
+     */
+    const getCard = () => {
+
+        if (deck.length === 0) {
+            throw 'No cards in the deck';
         }
+
+        const card = deck.shift();
+
+        return card;
     }
 
-    deck = _.shuffle( deck );
+    // getCard();
 
-    return deck;
-}
+    const cardValue = (card) => {
+        const value = card.substring(0, card.length - 1);
 
-createDeck();
+        return ( isNaN(value) ) ? 
+                (value === 'A') ? 11 : 10
+                : value * 1; // It's multiplicated by 2, to convert it to a number.
 
-/**
- * Allow us to take a card
- */
-const getCard = () => {
-
-    if (deck.length === 0) {
-        throw 'No cards in the deck';
     }
 
-    const card = deck.shift();
+    // Computer shift
+    const computerShift = ( minimumPoints ) => {
 
-    return card;
-}
+        do {
+            const card = getCard();
+            
+            computerPoints = computerPoints + cardValue(card);
+            pointsHTML[1].innerText = computerPoints;
+            
+            const newCard = document.createElement('img');
+            newCard.classList.add('carta');
+            newCard.src = `assets/cartas/${card}.png`;
+            divComputerCards.append( newCard );
 
-// getCard();
+            if (minimumPoints > 21) break;
 
-const cardValue = (card) => {
-    const value = card.substring(0, card.length - 1);
+        } while( (computerPoints < minimumPoints) && (minimumPoints <= 21) );
 
-    return ( isNaN(value) ) ? 
-            (value === 'A') ? 11 : 10
-            : value * 1; // It's multiplicated by 2, to convert it to a number.
+        setTimeout(() => {
+            // console.log('(playerPoints > computerPoints)')
+            // console.log('(playerPoints <= 21)',((playerPoints > computerPoints) && (playerPoints <= 21)))
+            // console.log('(computerPoints > 21)', (computerPoints > 21))
+            // console.log(((playerPoints > computerPoints) && (playerPoints <= 21))  || (computerPoints > 21))
+            if (computerPoints === playerPoints) {
+                alert('¡Empate!');
+            } else if (((playerPoints > computerPoints) && (playerPoints <= 21))  || (computerPoints > 21)) {
+                alert('¡Ganaste!')
+            } else if (((playerPoints < computerPoints) && (computerPoints <= 21)) || (playerPoints > 21)) {
+                alert('Perdiste!')
+            }
+        }, 100);
+    }
 
-}
-
-// Computer shift
-const computerShift = ( minimumPoints ) => {
-
-    do {
+    // Events
+    btnPedir.addEventListener('click', () => { // <-- Callback
         const card = getCard();
         
-        computerPoints = computerPoints + cardValue(card);
-        pointsHTML[1].innerText = computerPoints;
+        playerPoints = playerPoints + cardValue(card);
+        
+        // document.querySelector('#player1').textContent = pointsPlayer;
+        // document.querySelector('small').textContent = pointsPlayer; // No es buena practica llamar a los elementos en los metodos, porque
+                                                                    // cada vez que se ejecute el metodo se hara de nuevo la referencia
+
+                                                                    
+        pointsHTML[0].innerText = playerPoints;
         
         const newCard = document.createElement('img');
         newCard.classList.add('carta');
         newCard.src = `assets/cartas/${card}.png`;
-        divComputerCards.append( newCard );
+        divPlayerCards.append( newCard );
 
-        if (minimumPoints > 21) break;
+        if (playerPoints > 21) {
+            console.log('Perdiste u_u');
+            btnPedir.disabled = true;
+            btnStop.disabled  = true;
 
-    } while( (computerPoints < minimumPoints) && (minimumPoints <= 21) );
-
-    setTimeout(() => {
-        // console.log('(playerPoints > computerPoints)')
-        // console.log('(playerPoints <= 21)',((playerPoints > computerPoints) && (playerPoints <= 21)))
-        // console.log('(computerPoints > 21)', (computerPoints > 21))
-        // console.log(((playerPoints > computerPoints) && (playerPoints <= 21))  || (computerPoints > 21))
-        if (computerPoints === playerPoints) {
-            alert('¡Empate!');
-        } else if (((playerPoints > computerPoints) && (playerPoints <= 21))  || (computerPoints > 21)) {
-            alert('¡Ganaste!')
-        } else if (((playerPoints < computerPoints) && (computerPoints <= 21)) || (playerPoints > 21)) {
-            alert('Perdiste!')
+            computerShift(playerPoints);
+        } else if (playerPoints === 21) {
+            console.log('21 :D');
+            btnPedir.disabled = true;
+            btnStop.disabled  = true;
+            
+            computerShift(playerPoints);
         }
-    }, 100);
-}
+    });
 
-// Events
-btnPedir.addEventListener('click', () => { // <-- Callback
-    const card = getCard();
-    
-    playerPoints = playerPoints + cardValue(card);
-    
-    // document.querySelector('#player1').textContent = pointsPlayer;
-    // document.querySelector('small').textContent = pointsPlayer; // No es buena practica llamar a los elementos en los metodos, porque
-                                                                   // cada vez que se ejecute el metodo se hara de nuevo la referencia
-
-                                                                   
-    pointsHTML[0].innerText = playerPoints;
-    
-    const newCard = document.createElement('img');
-    newCard.classList.add('carta');
-    newCard.src = `assets/cartas/${card}.png`;
-    divPlayerCards.append( newCard );
-
-    if (playerPoints > 21) {
-        console.log('Perdiste u_u');
+    btnStop.addEventListener('click', () => {
         btnPedir.disabled = true;
         btnStop.disabled  = true;
 
         computerShift(playerPoints);
-    } else if (playerPoints === 21) {
-        console.log('21 :D');
-        btnPedir.disabled = true;
-        btnStop.disabled  = true;
-        
-        computerShift(playerPoints);
-    }
-});
+    });
 
-btnStop.addEventListener('click', () => {
-    btnPedir.disabled = true;
-    btnStop.disabled  = true;
+    btnNewGame.addEventListener('click', () => {
+        deck = [];
+        deck = createDeck();
 
-    computerShift(playerPoints);
-});
+        pointsHTML[0].innerText = 0;
+        pointsHTML[1].innerText = 0;
 
-btnNewGame.addEventListener('click', () => {
-    deck = [];
-    deck = createDeck();
+        btnPedir.disabled = false;
+        btnStop.disabled = false;
 
-    pointsHTML[0].innerText = 0;
-    pointsHTML[1].innerText = 0;
+        playerPoints = 0;
+        computerPoints = 0;
 
-    btnPedir.disabled = false;
-    btnStop.disabled = false;
+        divPlayerCards.innerHTML = '';
+        divComputerCards.innerHTML = '';
+    });
+    
 
-    playerPoints = 0;
-    computerPoints = 0;
-
-    divPlayerCards.innerHTML = '';
-    divComputerCards.innerHTML = '';
-});
+})();
