@@ -23,8 +23,8 @@
             
             <!-- testear si se puede cambiar el attributo disabled en navegador, e intentar dar click -->
             <button id="btnNuevo" class="btn btn-danger">Nuevo juego</button>
-            <button id="btnPedir" class="btn btn-primary">Pedir carta</button>
-            <button id="btnDetener" class="btn btn-primary">Detener</button>
+            <button id="btnPedir" disabled class="btn btn-primary">Pedir carta</button>
+            <button id="btnDetener" disabled class="btn btn-primary">Detener</button>
 
         </div>
     </div>
@@ -54,5 +54,11 @@
 
     <script src="./assets/js/underscore-min.js"></script> <!-- Se pone primero por que juego.js utilizara la libreria shuffle -->
     <script src="./assets/js/juego.js"></script>
+
+    <script>
+        document.querySelector('#btnNuevo').addEventListener('click', () => { // No es bueno hacer esto porque se hara referencia siempre
+            myGame.startGame();
+        })
+    </script>
 </body>
 </html>

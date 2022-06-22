@@ -6,7 +6,7 @@
 */
 
 // Pattern module
-(() => {
+const myGame = (() => {
     'use strict';
 
     let deck       = [];
@@ -23,14 +23,20 @@
     const divPlayersCards = document.querySelectorAll('.divCards'),
               pointsHTML = document.querySelectorAll('small');
 
-    const startGame = ( players = 1 ) => {
+    const startGame = ( players = 2 ) => {
         deck = createDeck();
 
+        playersPoints = [];
         for ( let i = 0; i < players; i++ ) {
             playersPoints.push(0);
         }
 
+        // Reset to 0 the points in the HTML
+        pointsHTML.forEach( elem => elem.innerText = 0);
+        divPlayersCards.forEach( elem => elem.innerHTML = '');
 
+        btnPedir.disabled = false;
+        btnStop.disabled = false;
     }
 
     const createDeck = () => {
@@ -78,6 +84,9 @@
     const accumulatePoints = ( card, turno ) => {
 
         playersPoints[turno] = playersPoints[turno] + cardValue(card);
+        console.log({ card })
+        console.log({ turno })
+        console.log(pointsHTML)
         pointsHTML[turno].innerText = playersPoints[turno];
 
         return playersPoints[turno];
@@ -92,20 +101,10 @@
 
     }
 
-    // Computer shift
-    const computerShift = ( minimumPoints ) => {
-        let computerPoints = 0;
-
-        do {
-            const card = getCard();
-            computerPoints = accumulatePoints(card, playersPoints.length - 1); // playersPoints.length - 1: to get the last position, last player
-
-            createCard( card, playersPoints.length - 1);
-
-            if (minimumPoints > 21) break;
-
-        } while( (computerPoints < minimumPoints) && (minimumPoints <= 21) );
-
+    const determineWinner = () => {
+        
+        const [ minimumPoints, computerPoints ] = playersPoints;
+        
         setTimeout(() => {
             if (computerPoints === minimumPoints) {
                 alert('¡Empate!');
@@ -115,6 +114,21 @@
                 alert('Perdiste!')
             }
         }, 100);
+
+    }
+
+    // Computer shift
+    const computerShift = ( minimumPoints ) => {
+        let computerPoints = 0;
+
+        do {
+            const card = getCard();
+            computerPoints = accumulatePoints(card, playersPoints.length - 1); // playersPoints.length - 1: to get the last position, last player
+
+            createCard( card, playersPoints.length - 1);
+        } while( (computerPoints < minimumPoints) && (minimumPoints <= 21) );
+
+        determineWinner();
     }
 
     // Events
@@ -149,26 +163,15 @@
         btnPedir.disabled = true;
         btnStop.disabled  = true;
 
-        computerShift(playerPoints);
+        computerShift(playersPoints[0]);
     });
 
     btnNewGame.addEventListener('click', () => {
-        startGame(2);
-        // deck = [];
-        // deck = createDeck();
-
-        // pointsHTML[0].innerText = 0;
-        // pointsHTML[1].innerText = 0;
-
-        // btnPedir.disabled = false;
-        // btnStop.disabled = false;
-
-        // playerPoints = 0;
-        // computerPoints = 0;
-
-        // divPlayerCards.innerHTML = '';
-        // divComputerCards.innerHTML = '';
+        startGame();
     });
     
+    return {
+        startGame: startGame
+    };
 
 })();
